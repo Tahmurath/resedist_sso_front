@@ -4,6 +4,7 @@ import {Button} from "@/components/ui/button.tsx";
 
 
 
+
 function Panel() {
     const [count, setCount] = useState(0)
 
@@ -19,6 +20,7 @@ function Panel() {
                     <Button onClick={() => setCount((count) => count + 1)}>
                         Home is {count}
                     </Button>
+
                     {t("login.description")}
                 </div>
 

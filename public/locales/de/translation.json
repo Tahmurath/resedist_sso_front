@@ -1,0 +1,24 @@
+{
+  "site": {
+    "home": "Startseite",
+    "admin": "Administratorin",
+    "panel": "Bedienfeld",
+    "title": "Titel",
+    "refresh": "Aktualisieren",
+    "edit": "Edit",
+    "departments": "Departments",
+    "is_active": "Is Active?",
+    "typetosearch": "Suchbegriff eingeben...",
+    "rows_per_page": "Zeilen pro Seite"
+  },
+  "department": {
+    "department": "Abteilung",
+    "departments": "Abteilung",
+    "deptype": "Abteilungstyp",
+    "deptypes": "Abteilungstypen",
+    "parent": "übergeordnete Abteilung",
+    "add_new_dep":"Neue Abteilung hinzufügen",
+    "searchbytitle":"Abteilungstitel...",
+    "departmentslist":"Liste der Abteilungen"
+  }
+}

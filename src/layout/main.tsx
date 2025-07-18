@@ -1,6 +1,7 @@
-import {Outlet} from "react-router";
+import {NavLink, Outlet} from "react-router";
+import UserMenu from "@/components/UserMenu.tsx";
 // import './Admin.css'
-
+import { useTranslation } from "react-i18next";
 
 
 
@@ -9,10 +10,19 @@ import {Outlet} from "react-router";
 const Main = () =>{
 
 
-
+    const { t } = useTranslation();
 
     return (
         <div className="min-h-full">
+            <UserMenu />
+            <NavLink to={"/"}>{t("site.home")}</NavLink>
+            <br/>
+            <NavLink to={"/about"}>About</NavLink> |
+            <br/>
+            <NavLink to={"/admin"}>Admin</NavLink> |
+            <br/>
+            <NavLink to={"/admin/panel"}>Admin/Panel</NavLink> |
+            <br/>
             <Outlet />
         </div>
     )

@@ -1,0 +1,24 @@
+{
+  "site": {
+    "home": "خانه",
+    "admin": "مدیریت",
+    "panel": "پنل",
+    "title": "عنوان",
+    "refresh": "بروزرسانی",
+    "edit": "ویرایش",
+    "departments": "دپارتمان ها",
+    "is_active": "فعال",
+    "typetosearch": "برای جستجو تایپ کنید...",
+    "rows_per_page": "تعداد سطر در صفحه"
+  },
+  "department": {
+    "department": "دپارتمان",
+    "departments": "دپارتمان ها",
+    "deptype": "نوع دپارتمان",
+    "deptypes": "انواع دپارتمان ها",
+    "parent": "دپارتمان والد",
+    "add_new_dep":"دپارتمان جدید",
+    "searchbytitle":"عنوان دپارتمان...",
+    "departmentslist":"لیست دپارتمان ها"
+  }
+}
