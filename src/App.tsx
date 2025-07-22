@@ -9,6 +9,7 @@ import { initReactI18next } from "react-i18next";
 import { queryClient } from "./queryClient/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import HttpBackend from 'i18next-http-backend';
+import UserMenu from "@/components/UserMenu.tsx";
 
 
 
@@ -35,12 +36,14 @@ function App() {
     return (
         <>
             <QueryClientProvider client={queryClient}>
-            <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+            <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
 
                 <div className="bg-muted flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
 
                     <div className="flex w-full max-w-sm flex-col gap-6">
-                        <a href="#" className="flex items-center gap-2 self-center font-medium"><ModeToggle></ModeToggle>
+                        <a href="#" className="flex items-center gap-2 self-center font-medium">
+                            <ModeToggle></ModeToggle>
+                            <UserMenu />
                             <div
                                 className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
                                 <GalleryVerticalEnd className="size-4"/>
