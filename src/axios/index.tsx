@@ -1,9 +1,10 @@
 import axios from "axios";
-import { getAuthToken } from "../services/authService";
+//import { getAuthToken } from "../services/authService";
 
 const axiosInstance = axios.create({
   baseURL: "http://localhost:4000",
   timeout: 1000,
+  withCredentials: true,
   headers: {
     Accept: "application/json",
     "Access-Control-Allow-Origin": "*",
@@ -11,9 +12,9 @@ const axiosInstance = axios.create({
 });
 
 axiosInstance.interceptors.request.use((value) => {
-  if (getAuthToken()) {
-    value.headers.Authorization = `Bearer ${getAuthToken()}`;
-  }
+  // if (getAuthToken()) {
+  //   value.headers.Authorization = `Bearer ${getAuthToken()}`;
+  // }
   return value;
 });
 
