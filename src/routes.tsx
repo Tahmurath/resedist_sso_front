@@ -10,7 +10,8 @@ const Admin = lazy(() => import('./layout/admin'));
 
 
 const Home = lazy(() => import('./pages/main/home'));
-const About = lazy(() => import('./pages/main/about'));
+const Signup = lazy(() => import('./pages/main/signup.tsx'));
+const Login = lazy(() => import('./pages/main/login.tsx'));
 
 const Dashboard = lazy(() => import('./pages/admin/dashboard.tsx'));
 const Panel = lazy(() => import('./pages/admin/panel.tsx'));
@@ -35,13 +36,21 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: 'about',
+        path: 'signup',
         element: (
             <Suspense fallback={<>...</>}>
-              <About />
+              <Signup />
             </Suspense>
         ),
       },
+        {
+            path: 'login',
+            element: (
+                <Suspense fallback={<>...</>}>
+                    <Login />
+                </Suspense>
+            ),
+        },
     ],
   },
   {

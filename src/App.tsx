@@ -50,7 +50,7 @@ function App() {
                             </div>
                             Acme Inc.
                         </a>
-                        <LoginForm/>
+
                         <RouterProvider router={router} />
                     </div>
                 </div>

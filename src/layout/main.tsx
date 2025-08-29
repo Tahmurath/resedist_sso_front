@@ -14,15 +14,14 @@ const Main = () =>{
 
     return (
         <div className="min-h-full">
-            <UserMenu />
-            <NavLink to={"/"}>{t("site.home")}</NavLink>
-            <br/>
-            <NavLink to={"/about"}>About</NavLink> |
-            <br/>
-            <NavLink to={"/admin"}>Admin</NavLink> |
-            <br/>
-            <NavLink to={"/admin/panel"}>Admin/Panel</NavLink> |
-            <br/>
+
+            {/*<UserMenu />*/}
+            {/*<NavLink to={"/"}>{t("site.home")}</NavLink> | <NavLink to={"/about"}>{t("site.admin")}</NavLink>*/}
+            {/*<br/>*/}
+            {/*<NavLink to={"/admin"}>Admin</NavLink> |*/}
+            {/*<br/>*/}
+            {/*<NavLink to={"/admin/panel"}>Admin/Panel</NavLink> |*/}
+            {/*<br/>*/}
             <Outlet />
         </div>
     )

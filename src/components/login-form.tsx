@@ -9,11 +9,15 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import {NavLink} from "react-router";
+import {useTranslation} from "react-i18next";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+
+  const { t } = useTranslation();
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
@@ -79,9 +83,8 @@ export function LoginForm({
               </div>
               <div className="text-center text-sm">
                 Don&apos;t have an account?{" "}
-                <a href="#" className="underline underline-offset-4">
-                  Sign up
-                </a>
+
+                <NavLink to={"/signup"} className="underline underline-offset-4">{t("site.signup")}</NavLink>
               </div>
             </div>
           </form>

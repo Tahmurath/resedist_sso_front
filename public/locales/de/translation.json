@@ -6,6 +6,8 @@
     "title": "Titel",
     "refresh": "Aktualisieren",
     "edit": "Edit",
+    "signup": "Sign up",
+    "login": "Login",
     "departments": "Departments",
     "is_active": "Is Active?",
     "typetosearch": "Suchbegriff eingeben...",
