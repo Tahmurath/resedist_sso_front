@@ -1,7 +1,5 @@
-import {NavLink, Outlet} from "react-router";
-import UserMenu from "@/components/UserMenu.tsx";
-// import './Admin.css'
-import { useTranslation } from "react-i18next";
+import {Outlet} from "react-router";
+
 
 
 
@@ -10,7 +8,7 @@ import { useTranslation } from "react-i18next";
 const Main = () =>{
 
 
-    const { t } = useTranslation();
+
 
     return (
         <div className="min-h-full">
