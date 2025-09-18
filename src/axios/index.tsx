@@ -2,12 +2,13 @@ import axios from "axios";
 //import { getAuthToken } from "../services/authService";
 
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:4000",
+  baseURL: "http://127.0.0.1:4000",
   timeout: 1000,
   withCredentials: true,
   headers: {
     Accept: "application/json",
-    "Access-Control-Allow-Origin": "*",
+    //"Access-Control-Allow-Origin": "*",
+    "Content-type": "application/json; charset=UTF-8"
   },
 });
 

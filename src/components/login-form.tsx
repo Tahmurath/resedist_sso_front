@@ -8,7 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+// import { Label } from "@/components/ui/label";
 import { NavLink } from "react-router"; // اصلاح وارد کردن NavLink
 import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
@@ -17,18 +17,19 @@ import { z } from "zod";
 import {
   Form,
   FormControl,
-  FormDescription,
+  // FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { useState } from "react";
+import {axiosInstance} from "@/axios";
 
-interface LoginFormProps {
-  email: string;
-  password: string;
-}
+// interface LoginFormProps {
+//   email: string;
+//   password: string;
+// }
 
 const FormSchema = z.object({
   email: z.string().min(6, { message: "Email is required" }).email({ message: "Invalid email address" }),
@@ -50,6 +51,8 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     setIsLoading(true);
     try {
+      let response;
+      response = await axiosInstance.post(`/sso/v1/auth/login`, data);
       console.log(data);
       // اینجا می‌توانید منطق ورود به سیستم (مثل ارسال درخواست به API) را اضافه کنید
     } catch (error) {
@@ -104,7 +107,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
                             <FormControl>
                               <Input placeholder={t("login.email_placeholder")} {...field} />
                             </FormControl>
-                            <FormDescription>{t("login.email_description")}</FormDescription>
+                            {/*<FormDescription>{t("login.email_description")}</FormDescription>*/}
                             <FormMessage />
                           </FormItem>
                       )}
@@ -126,7 +129,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
                             <FormControl>
                               <Input type="password" placeholder={t("login.password_placeholder")} {...field} />
                             </FormControl>
-                            <FormDescription>{t("login.password_description")}</FormDescription>
+                            {/*<FormDescription>{t("login.password_description")}</FormDescription>*/}
                             <FormMessage />
                           </FormItem>
                       )}
