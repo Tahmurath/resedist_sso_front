@@ -8,8 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-// import { Label } from "@/components/ui/label";
-import { NavLink } from "react-router"; // اصلاح وارد کردن NavLink
+import { NavLink } from "react-router";
 import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,19 +16,15 @@ import { z } from "zod";
 import {
   Form,
   FormControl,
-  // FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { useState } from "react";
-import {axiosInstance} from "@/axios";
-
-// interface LoginFormProps {
-//   email: string;
-//   password: string;
-// }
+import { useState, useEffect } from "react";
+import { axiosInstance } from "@/axios";
+//import { useToast } from "@/components/ui/use-toast";
+import { useNavigate, useSearchParams } from "react-router";
 
 const FormSchema = z.object({
   email: z.string().min(6, { message: "Email is required" }).email({ message: "Invalid email address" }),
@@ -38,7 +33,14 @@ const FormSchema = z.object({
 
 export function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
   const [isLoading, setIsLoading] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const { t } = useTranslation();
+  //const { toast } = useToast();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  // گرفتن آدرس redirect از query parameter
+  const redirectUrl = searchParams.get("redirect") || "/"; // در صورت نبود redirect، به مسیر پیش‌فرض برو
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -48,19 +50,66 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
     },
   });
 
+  // تابع برای ریدایرکت با access_token
+  const redirectWithToken = (accessToken: string) => {
+    const url = new URL(redirectUrl);
+    url.searchParams.set("access_token", accessToken);
+    window.location.href = url.toString();
+  };
+
+  // بررسی وضعیت لاگین با درخواست به /refresh
+  useEffect(() => {
+    const checkAuthStatus = async () => {
+      setIsLoading(true);
+      try {
+        const response = await axiosInstance.post("/api/v1/sso/auth/refresh", {}, { withCredentials: true });
+        if (response.data._status === "success" && response.data.data.access_token) {
+          setIsAuthenticated(true);
+          redirectWithToken(response.data.data.access_token);
+        }
+      } catch (error) {
+        setIsAuthenticated(false);
+        console.error("Refresh token failed:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkAuthStatus();
+  }, []);
+
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     setIsLoading(true);
     try {
-      //const response;
-      const response = await axiosInstance.post(`/api/v1/sso/auth/login`, data);
-      console.log(data);
-      console.log(response);
-      // اینجا می‌توانید منطق ورود به سیستم (مثل ارسال درخواست به API) را اضافه کنید
+      const response = await axiosInstance.post("/api/v1/sso/auth/login", data, { withCredentials: true });
+      if (response.data._status === "success" && response.data.data.access_token) {
+        // toast({
+        //   title: t("login.success"),
+        //   description: t("login.success_message"),
+        // });
+        redirectWithToken(response.data.data.access_token);
+      } else {
+        // toast({
+        //   title: t("login.error"),
+        //   description: t("login.invalid_credentials"),
+        //   variant: "destructive",
+        // });
+      }
     } catch (error) {
+      // toast({
+      //   title: t("login.error"),
+      //   description: t("login.error_message"),
+      //   variant: "destructive",
+      // });
       console.error("Error submitting form:", error);
     } finally {
-      setIsLoading(false); // تنظیم isLoading به false پس از اتمام عملیات
+      setIsLoading(false);
     }
+  }
+
+  // اگر کاربر لاگین کرده، چیزی نمایش نده (چون ریدایرکت شده)
+  if (isAuthenticated) {
+    return null;
   }
 
   return (
@@ -108,7 +157,6 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
                             <FormControl>
                               <Input placeholder={t("login.email_placeholder")} {...field} />
                             </FormControl>
-                            {/*<FormDescription>{t("login.email_description")}</FormDescription>*/}
                             <FormMessage />
                           </FormItem>
                       )}
@@ -130,7 +178,6 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
                             <FormControl>
                               <Input type="password" placeholder={t("login.password_placeholder")} {...field} />
                             </FormControl>
-                            {/*<FormDescription>{t("login.password_description")}</FormDescription>*/}
                             <FormMessage />
                           </FormItem>
                       )}
