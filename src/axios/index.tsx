@@ -2,8 +2,8 @@ import axios from "axios";
 //import { getAuthToken } from "../services/authService";
 
 const axiosInstance = axios.create({
-  baseURL: "http://127.0.0.1:4000",
-  timeout: 1000,
+  baseURL: "http://localhost:5173/",
+  timeout: 5000,
   withCredentials: true,
   headers: {
     Accept: "application/json",

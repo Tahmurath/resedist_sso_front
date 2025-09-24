@@ -31,7 +31,25 @@ export default defineConfig(({ mode }) => {
           //chunkFileNames: `assets/[name]${mode === 'production' ? '.[hash]' : ''}.js`
         }
       }
-    }
+    },
+    server: {
+      proxy: {
+        '/api': {
+          target: 'http://localhost:4000',
+          changeOrigin: true,
+          secure: false, // برای localhost بدون HTTPS
+        },
+      },
+    },
+    // server: {
+    //   proxy: {
+    //     '/api': {  // همه درخواست‌های شروع‌شده با /api را پروکسی کن
+    //       target: 'http://localhost:4000',  // آدرس backend
+    //       changeOrigin: true,  // origin را تغییر بده تا backend فکر کند درخواست از خودش است
+    //       rewrite: (path) => path.replace(/^\/api/, '/api')  // اگر لازم باشد، path را بازنویسی کن (اختیاری)
+    //     }
+    //   }
+    // }
   }
 
 

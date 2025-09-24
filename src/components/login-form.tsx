@@ -51,9 +51,10 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     setIsLoading(true);
     try {
-      let response;
-      response = await axiosInstance.post(`/sso/v1/auth/login`, data);
+      //const response;
+      const response = await axiosInstance.post(`/api/v1/sso/auth/login`, data);
       console.log(data);
+      console.log(response);
       // اینجا می‌توانید منطق ورود به سیستم (مثل ارسال درخواست به API) را اضافه کنید
     } catch (error) {
       console.error("Error submitting form:", error);
