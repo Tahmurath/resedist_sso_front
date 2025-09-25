@@ -1,6 +1,6 @@
 import {Outlet} from "react-router";
 
-
+import { Toaster } from "@/components/ui/sonner"
 
 
 
@@ -21,6 +21,7 @@ const Main = () =>{
             {/*<NavLink to={"/admin/panel"}>Admin/Panel</NavLink> |*/}
             {/*<br/>*/}
             <Outlet />
+            <Toaster />
         </div>
     )
 }
