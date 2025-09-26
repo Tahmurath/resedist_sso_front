@@ -34,6 +34,7 @@ const FormSchema = z.object({
 export function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
   const [isLoading, setIsLoading] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userInfo, setUserInfo] = useState("");
   const { t } = useTranslation();
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -90,6 +91,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
         );
         if (response.data._status === "success" && response.data.data.access_token) {
           setIsAuthenticated(true);
+          setUserInfo(response.data.data.access_token);
           sendTokenToParent(response.data.data.access_token);
         }
       } catch (error: any) {
@@ -107,7 +109,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
     };
 
     checkAuthStatus();
-  }, [t]);
+  }, [sendTokenToParent, t]);
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     setIsLoading(true);
@@ -141,9 +143,33 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
     }
   }
 
+  const getUserinfoFromAccessToken = (token: string) => {
+    try {
+      const payload = token.split('.')[1];
+      const decodedPayload = atob(payload);
+      const parsedPayload = JSON.parse(decodedPayload);
+      console.log(parsedPayload);
+      return `Logged in as user# ${parsedPayload.email || parsedPayload.sub || parsedPayload.ID}`;
+    } catch (error) {
+      console.error("Error decoding token:", error);
+      return "Logged in user";
+    }
+  }
+
   // اگر کاربر لاگین کرده، چیزی نمایش نده (چون ریدایرکت یا بسته شده)
   if (isAuthenticated) {
-    return null;
+    return <div>
+        <Card>
+            <CardHeader className="text-center">
+            <CardTitle className="text-xl">{t("login.already_logged_in")}</CardTitle>
+            <CardDescription>{t("login.redirecting")}</CardDescription>
+            </CardHeader>
+            <CardContent className="text-center">
+              {getUserinfoFromAccessToken(userInfo)}
+            <Loader2 className="mx-auto h-8 w-8 animate-spin" />
+            </CardContent>
+        </Card>
+    </div>
   }
 
   return (

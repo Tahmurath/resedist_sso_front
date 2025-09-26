@@ -44,7 +44,7 @@ export const router = createBrowserRouter([
         ),
       },
         {
-            path: 'login',
+            path: 'sso/login',
             element: (
                 <Suspense fallback={<>...</>}>
                     <Login />

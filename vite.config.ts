@@ -22,10 +22,10 @@ export default defineConfig(({ mode }) => {
     build: {
       rollupOptions: {
         output: {
-          entryFileNames: currentMode === 'production'
+          entryFileNames: currentMode === 'development'
               ? `assets/[name]-[hash].js`
               : 'assets/[name].js',
-          chunkFileNames: currentMode === 'production'
+          chunkFileNames: currentMode === 'development'
               ? `assets/[name]-[hash].js`
               : 'assets/[name].js',
           //chunkFileNames: `assets/[name]${mode === 'production' ? '.[hash]' : ''}.js`
