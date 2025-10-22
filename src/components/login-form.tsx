@@ -8,7 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { NavLink } from "react-router"; // اصلاح import
+import { NavLink } from "react-router";
 import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -24,7 +24,7 @@ import {
 import { useState, useEffect } from "react";
 import { axiosInstance } from "@/axios";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react"; // برای آیکون لودینگ
+import { Loader2 } from "lucide-react";
 
 const FormSchema = z.object({
   email: z.string().min(6, { message: "Email is required" }).email({ message: "Invalid email address" }),
@@ -34,7 +34,6 @@ const FormSchema = z.object({
 export function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
   const [isLoading, setIsLoading] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userInfo, setUserInfo] = useState("");
   const { t } = useTranslation();
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -45,37 +44,58 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
     },
   });
 
-  // تابع برای ارسال access_token به صفحه والد
-  const sendTokenToParent = (accessToken: string) => {
-    if (window.opener) {
-      // ارسال توکن از طریق postMessage برای پاپ‌آپ
-      window.opener.postMessage({ access_token: accessToken }, "*");
-      window.close();
-    } else {
-      // ریدایرکت با query parameter
-      const redirectUrl = new URLSearchParams(window.location.search).get("redirect");
-      if (redirectUrl) {
-        try {
-          const url = new URL(redirectUrl);
-          // بررسی دامنه مجاز (برای امنیت)
-          const allowedDomains = ["localhost", "your-app-domain.com"]; // دامنه‌های مجاز رو اینجا تعریف کن
-          if (!allowedDomains.includes(url.hostname)) {
-            throw new Error("Invalid redirect domain");
+  // تابع برای ارسال توکن یا کد موقت به صفحه والد
+  const sendTokenToParent = async (data: { access_token?: string; code?: string }) => {
+    const parentOrigin = "https://your-app-domain.com"; // دامنه صفحه والد
+    // بررسی iframe یا پاپ‌آپ
+    if (window.parent !== window || window.opener) {
+      try {
+        // استفاده از window.parent برای iframe یا window.opener برای پاپ‌آپ
+        const targetWindow = window.parent !== window ? window.parent : window.opener;
+        if (targetWindow) {
+          targetWindow.postMessage({ access_token: data.access_token }, parentOrigin);
+          // در iframe، نمی‌تونیم پنجره رو ببندیم، اما می‌تونیم فرم رو مخفی کنیم
+          if (window.parent !== window) {
+            setIsAuthenticated(true); // مخفی کردن فرم در iframe
+          } else {
+            window.close(); // بستن پاپ‌آپ
           }
-          url.searchParams.set("access_token", accessToken);
-          window.location.href = url.toString();
-        } catch (error) {
-          console.error("Invalid redirect URL:", error);
-          toast(t("login.error"), {
-            description: t("login.invalid_redirect"),
-          });
         }
-      } else {
-        console.error("No redirect URL or window.opener found");
+      } catch (error) {
+        console.error("Failed to send postMessage:", error);
         toast(t("login.error"), {
-          description: t("login.no_redirect"),
+          description: t("login.message_error"),
+        });
+        await redirectWithCode(data.code); // Fallback به ریدایرکت با کد
+      }
+    } else {
+      await redirectWithCode(data.code);
+    }
+  };
+
+  // تابع برای ریدایرکت با کد موقت
+  const redirectWithCode = async (code?: string) => {
+    const redirectUrl = new URLSearchParams(window.location.search).get("redirect");
+    if (redirectUrl && code) {
+      try {
+        const url = new URL(redirectUrl);
+        const allowedDomains = ["localhost", "your-app-domain.com"];
+        if (!allowedDomains.includes(url.hostname)) {
+          throw new Error("Invalid redirect domain");
+        }
+        url.searchParams.set("code", code);
+        window.location.href = url.toString();
+      } catch (error) {
+        console.error("Invalid redirect URL:", error);
+        toast(t("login.error"), {
+          description: t("login.invalid_redirect"),
         });
       }
+    } else {
+      console.error("No redirect URL or code found");
+      toast(t("login.error"), {
+        description: t("login.no_redirect"),
+      });
     }
   };
 
@@ -91,13 +111,14 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
         );
         if (response.data._status === "success" && response.data.data.access_token) {
           setIsAuthenticated(true);
-          setUserInfo(response.data.data.access_token);
-          sendTokenToParent(response.data.data.access_token);
+          sendTokenToParent({
+            access_token: response.data.data.access_token,
+            code: response.data.data.code, // فرض می‌کنیم سرور کد موقت هم برمی‌گردونه
+          });
         }
       } catch (error: any) {
         setIsAuthenticated(false);
         console.error("Refresh token failed:", error);
-        // نمایش پیام خطا فقط در صورتی که خطای غیرمنتظره باشه
         if (error.response?.status !== 401) {
           toast(t("login.error"), {
             description: t("login.error_message"),
@@ -109,7 +130,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
     };
 
     checkAuthStatus();
-  }, [sendTokenToParent, t]);
+  }, [t]);
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     setIsLoading(true);
@@ -123,7 +144,10 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
         toast(t("login.success"), {
           description: t("login.success_message"),
         });
-        sendTokenToParent(response.data.data.access_token);
+        sendTokenToParent({
+          access_token: response.data.data.access_token,
+          code: response.data.data.code, // فرض می‌کنیم سرور کد موقت هم برمی‌گردونه
+        });
       } else {
         toast(t("login.error"), {
           description: t("login.invalid_credentials"),
@@ -143,33 +167,8 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
     }
   }
 
-  const getUserinfoFromAccessToken = (token: string) => {
-    try {
-      const payload = token.split('.')[1];
-      const decodedPayload = atob(payload);
-      const parsedPayload = JSON.parse(decodedPayload);
-      console.log(parsedPayload);
-      return `Logged in as user# ${parsedPayload.email || parsedPayload.sub || parsedPayload.ID}`;
-    } catch (error) {
-      console.error("Error decoding token:", error);
-      return "Logged in user";
-    }
-  }
-
-  // اگر کاربر لاگین کرده، چیزی نمایش نده (چون ریدایرکت یا بسته شده)
   if (isAuthenticated) {
-    return <div>
-        <Card>
-            <CardHeader className="text-center">
-            <CardTitle className="text-xl">{t("login.already_logged_in")}</CardTitle>
-            <CardDescription>{t("login.redirecting")}</CardDescription>
-            </CardHeader>
-            <CardContent className="text-center">
-              {getUserinfoFromAccessToken(userInfo)}
-            <Loader2 className="mx-auto h-8 w-8 animate-spin" />
-            </CardContent>
-        </Card>
-    </div>
+    return null; // مخفی کردن فرم بعد از لاگین موفق در iframe یا پاپ‌آپ
   }
 
   return (
