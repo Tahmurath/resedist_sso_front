@@ -1,48 +1,38 @@
 import { createBrowserRouter } from "react-router";
 import { Suspense, lazy } from "react";
-// import LightSidebarWithHeader from "./layout/LightSidebarWithHeader.jsx";
 
 
-//const MainLayout = lazy(() => import('./layout/MainLayout'));
-const Main = lazy(() => import('./layout/main.tsx'));
-const Admin = lazy(() => import('./layout/admin'));
+const LayoutWithThemeLang = lazy(() => import('./layout/LayoutWithThemeLang.tsx'));
+const LayoutnobarWithBottomNavigation = lazy(() => import('./layout/LayoutnobarWithBottomNavigation.tsx'));
 
 
 
 const Home = lazy(() => import('./pages/main/home'));
-const Signup = lazy(() => import('./pages/main/signup.tsx'));
 const Login = lazy(() => import('./pages/main/login.tsx'));
 
-const Dashboard = lazy(() => import('./pages/admin/dashboard.tsx'));
-const Panel = lazy(() => import('./pages/admin/panel.tsx'));
+const TmaIndex = lazy(() => import('./pages/miniapp/index.tsx'));
+const TmaSettings = lazy(() => import('./pages/miniapp/settings.tsx'));
+const TmaProfile = lazy(() => import('./pages/miniapp/profile.tsx'));
 
-// const TaskPage = lazy(() => import('./pages/admin/tasks/page.tsx'));
+
 
 export const router = createBrowserRouter([
-  {
+    {
     path: '/',
     element: (
         <Suspense fallback={<>...</>}>
-          <Main />
+          <LayoutWithThemeLang />
         </Suspense>
     ),
     children: [
-      {
+        {
         index: true,
         element: (
             <Suspense fallback={<>...</>}>
               <Home />
             </Suspense>
         ),
-      },
-      {
-        path: 'signup',
-        element: (
-            <Suspense fallback={<>...</>}>
-              <Signup />
-            </Suspense>
-        ),
-      },
+        },
         {
             path: 'sso/login',
             element: (
@@ -52,32 +42,40 @@ export const router = createBrowserRouter([
             ),
         },
     ],
-  },
-  {
-    path: 'admin',
-    element: (
-        <Suspense fallback={<>...</>}>
-          <Admin />
-        </Suspense>
-    ),
-    children: [
-      {
-        index: true,
+    },
+    {
+        path: '/tg/miniapp',
         element: (
             <Suspense fallback={<>...</>}>
-              <Dashboard />
+                <LayoutnobarWithBottomNavigation />
             </Suspense>
         ),
-      },
-      {
-        path: 'panel',
-        element: (
-            <Suspense fallback={<>...</>}>
-              <Panel />
-            </Suspense>
-        ),
-      },
-    ],
-  },
+        children: [
+            {
+                index: true,
+                element: (
+                    <Suspense fallback={<>...</>}>
+                        <TmaIndex />
+                    </Suspense>
+                ),
+            },
+            {
+                path: 'profile',
+                element: (
+                    <Suspense fallback={<>...</>}>
+                        <TmaProfile />
+                    </Suspense>
+                ),
+            },
+            {
+                path: 'settings',
+                element: (
+                    <Suspense fallback={<>...</>}>
+                        <TmaSettings />
+                    </Suspense>
+                ),
+            },
+        ],
+    },
 ]);
 

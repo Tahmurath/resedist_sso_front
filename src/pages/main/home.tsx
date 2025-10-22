@@ -1,8 +1,12 @@
 
+// import {LoginForm} from "@/components/login-form.tsx";
+// import MobileLayout from "@/layout/mobile.tsx"
+// import BottomNavigation from '@/components/BottomNavigation.tsx';
+
+
+// import BottomNavigation from "@/components/BottomNavigation.tsx";
+
 import {LoginForm} from "@/components/login-form.tsx";
-
-
-
 
 function Home() {
     //const [count, setCount] = useState(0)
@@ -18,6 +22,10 @@ function Home() {
         <>
             <div>
                 <LoginForm/>
+                {/*<MobileLayout>*/}
+                    <div>محتوای صفحه خانه</div>
+                {/*</MobileLayout>*/}
+
             </div>
         </>
     )

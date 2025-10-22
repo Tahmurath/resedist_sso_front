@@ -1,6 +1,7 @@
 import {Outlet} from "react-router";
 
 import { Toaster } from "@/components/ui/sonner"
+// import BottomNavigation from "@/components/BottomNavigation.tsx";
 
 
 
@@ -22,6 +23,7 @@ const Main = () =>{
             {/*<br/>*/}
             <Outlet />
             <Toaster />
+
         </div>
     )
 }
