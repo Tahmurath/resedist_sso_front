@@ -1,29 +1,15 @@
-
-// import {LoginForm} from "@/components/login-form.tsx";
-// import MobileLayout from "@/layout/mobile.tsx"
-// import BottomNavigation from '@/components/BottomNavigation.tsx';
-
-
-// import BottomNavigation from "@/components/BottomNavigation.tsx";
-
-import {LoginForm} from "@/components/login-form.tsx";
+import {useTranslation} from "react-i18next";
 
 function Home() {
-    //const [count, setCount] = useState(0)
 
-
-
-    // const sendRequest = async () => {
-    //    await axiosInstance.get(`/api/v1/department`);
-    // }
-
+    const { t } = useTranslation();
 
     return (
         <>
             <div>
-                <LoginForm/>
+
                 {/*<MobileLayout>*/}
-                    <div>محتوای صفحه خانه</div>
+                    <div>{t("login.welcome_back")}</div>
                 {/*</MobileLayout>*/}
 
             </div>

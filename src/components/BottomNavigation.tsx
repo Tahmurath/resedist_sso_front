@@ -1,11 +1,15 @@
 import { NavLink } from 'react-router';
 import { Home, User, Settings } from 'lucide-react';
+import {useTranslation} from "react-i18next";
 
 const BottomNavigation = () => {
+
+    const { t } = useTranslation();
+
     const navItems = [
-        { path: '/tma', label: 'Home', icon: <Home className="h-6 w-6" /> },
-        { path: '/tma/profile', label: 'Profile', icon: <User className="h-6 w-6" /> },
-        { path: '/tma/settings', label: 'Settings', icon: <Settings className="h-6 w-6" /> },
+        { path: '/tg/miniapp/in/home', label: t("site.home"), icon: <Home className="h-6 w-6" /> },
+        { path: '/tg/miniapp/in/profile', label: t("site.profile"), icon: <User className="h-6 w-6" /> },
+        { path: '/tg/miniapp/in/settings', label: t("site.settings"), icon: <Settings className="h-6 w-6" /> },
     ];
 
     return (

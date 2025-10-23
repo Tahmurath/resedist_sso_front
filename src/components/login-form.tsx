@@ -119,6 +119,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
       } catch (error: any) {
         setIsAuthenticated(false);
         console.error("Refresh token failed:", error);
+        alert("Refresh token failed:" + error);
         if (error.response?.status !== 401) {
           toast(t("login.error"), {
             description: t("login.error_message"),

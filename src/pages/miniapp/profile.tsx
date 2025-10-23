@@ -6,7 +6,7 @@ function Index() {
         <>
             <div>
                 {/*<MobileLayout>*/}
-                    <div>TMA Profile</div>
+                    <div>Profile</div>
                 {/*</MobileLayout>*/}
 
             </div>

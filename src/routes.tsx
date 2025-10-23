@@ -4,6 +4,7 @@ import { Suspense, lazy } from "react";
 
 const LayoutWithThemeLang = lazy(() => import('./layout/LayoutWithThemeLang.tsx'));
 const LayoutnobarWithBottomNavigation = lazy(() => import('./layout/LayoutnobarWithBottomNavigation.tsx'));
+const LayoutnobarnoBottom = lazy(() => import('./layout/LayoutnobarnoBottom.tsx'));
 
 
 
@@ -47,12 +48,31 @@ export const router = createBrowserRouter([
         path: '/tg/miniapp',
         element: (
             <Suspense fallback={<>...</>}>
+                <LayoutnobarnoBottom />
+            </Suspense>
+        ),
+        children: [
+            {
+                index: true,
+                element: (
+                    <Suspense fallback={<>...</>}>
+                        <TmaIndex />
+                    </Suspense>
+                ),
+            },
+        ],
+    },
+    {
+        path: '/tg/miniapp/in/',
+        element: (
+            <Suspense fallback={<>...</>}>
                 <LayoutnobarWithBottomNavigation />
             </Suspense>
         ),
         children: [
             {
                 index: true,
+                path: 'home',
                 element: (
                     <Suspense fallback={<>...</>}>
                         <TmaIndex />

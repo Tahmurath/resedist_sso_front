@@ -1,3 +1,4 @@
+import {NavLink} from "react-router";
 
 
 function Index() {
@@ -6,7 +7,8 @@ function Index() {
         <>
             <div>
                 {/*<MobileLayout>*/}
-                    <div>TMA Home</div>
+                <NavLink to={"/tg/miniapp/in/home"}>Go Home</NavLink>
+
                 {/*</MobileLayout>*/}
 
             </div>
