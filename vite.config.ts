@@ -28,6 +28,19 @@ export default defineConfig(({ mode }) => {
           chunkFileNames: currentMode === 'development'
               ? `assets/[name]-[hash].js`
               : 'assets/[name].js',
+          assetFileNames: (assetInfo) => {
+            // Keep stable names for CSS in production; hash in dev. Other assets keep their original pattern.
+            const ext = assetInfo.name ? assetInfo.name.substring(assetInfo.name.lastIndexOf('.')) : ''
+            if (ext === '.css') {
+              return currentMode === 'development'
+                ? 'assets/[name]-[hash][extname]'
+                : 'assets/[name][extname]'
+            }
+            // For non-CSS you can also remove hash; adjust if needed.
+            return currentMode === 'development'
+              ? 'assets/[name]-[hash][extname]'
+              : 'assets/[name][extname]'
+          }
           //chunkFileNames: `assets/[name]${mode === 'production' ? '.[hash]' : ''}.js`
         }
       }

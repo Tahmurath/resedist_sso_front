@@ -12,6 +12,7 @@ const Home = lazy(() => import('./pages/main/home'));
 const Login = lazy(() => import('./pages/main/login.tsx'));
 
 const TmaIndex = lazy(() => import('./pages/miniapp/index.tsx'));
+const TmaHome = lazy(() => import('./pages/miniapp/home.tsx'));
 const TmaSettings = lazy(() => import('./pages/miniapp/settings.tsx'));
 const TmaProfile = lazy(() => import('./pages/miniapp/profile.tsx'));
 
@@ -72,10 +73,18 @@ export const router = createBrowserRouter([
         children: [
             {
                 index: true,
-                path: 'home',
+                //path: 'home',
                 element: (
                     <Suspense fallback={<>...</>}>
                         <TmaIndex />
+                    </Suspense>
+                ),
+            },
+            {
+                path: 'home',
+                element: (
+                    <Suspense fallback={<>...</>}>
+                        <TmaHome />
                     </Suspense>
                 ),
             },
