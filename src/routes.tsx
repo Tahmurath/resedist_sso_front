@@ -9,6 +9,7 @@ const LayoutnobarnoBottom = lazy(() => import('./layout/LayoutnobarnoBottom.tsx'
 
 
 const Home = lazy(() => import('./pages/main/home'));
+const Roomtemplates = lazy(() => import('./pages/miniapp/roomtemplates'));
 const Login = lazy(() => import('./pages/main/login.tsx'));
 
 const TmaIndex = lazy(() => import('./pages/miniapp/index.tsx'));
@@ -85,6 +86,14 @@ export const router = createBrowserRouter([
                 element: (
                     <Suspense fallback={<>...</>}>
                         <TmaHome />
+                    </Suspense>
+                ),
+            },
+            {
+                path: 'roomtemplates',
+                element: (
+                    <Suspense fallback={<>...</>}>
+                        <Roomtemplates />
                     </Suspense>
                 ),
             },

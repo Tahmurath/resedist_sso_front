@@ -1,6 +1,8 @@
 // import {NavLink} from "react-router";
 
 
+import {NavLink} from "react-router";
+
 function Index() {
 
     return (
@@ -8,6 +10,8 @@ function Index() {
             <div>
                 {/*<MobileLayout>*/}
                 Welcome Home
+                <br/>
+                <NavLink to={'/tg/miniapp/in/roomtemplates'}>roomtemplates</NavLink>
 
                 {/*</MobileLayout>*/}
 
