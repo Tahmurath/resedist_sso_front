@@ -1,5 +1,5 @@
 import {NavLink} from "react-router";
-import {Button} from "@headlessui/react";
+import { Button } from "@/components/ui/button";
 
 
 function Index() {
@@ -40,7 +40,9 @@ function Index() {
         <>
             <div>
                 {/*<MobileLayout>*/}
-                <NavLink to={"/tg/miniapp/in/home"}>Go Home</NavLink>
+
+                <NavLink to={'/tg/miniapp/in/home'}><Button>Go Home</Button></NavLink>
+                <hr></hr>
                 <Button onClick={sendInitData}>Auth</Button>
 
                 <div className="card">

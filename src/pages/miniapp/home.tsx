@@ -2,16 +2,15 @@
 
 
 import {NavLink} from "react-router";
+import { Button } from "@/components/ui/button";
+
 
 function Index() {
 
     return (
         <>
             <div>
-                {/*<MobileLayout>*/}
-                Welcome Home
-                <br/>
-                <NavLink to={'/tg/miniapp/in/roomtemplates'}>roomtemplates</NavLink>
+                <NavLink to={'/tg/miniapp/in/roomtemplates'}><Button>roomtemplates</Button></NavLink>
 
                 {/*</MobileLayout>*/}
 

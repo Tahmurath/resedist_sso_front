@@ -13,7 +13,7 @@ const BottomNavigation = () => {
     ];
 
     return (
-        <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-border ">
+        <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-border z-50 shadow-sm">
             <div className="flex justify-around items-center h-16">
                 {navItems.map((item) => (
                     <NavLink
