@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useEffect, useRef, useCallback, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { useAuthGuard } from "@/hooks/useAuthGuard";
 
 
 interface RoomTemplate {
@@ -33,6 +34,8 @@ interface RoomTemplateResponse {
 }
 
 function Roomtemplates() {
+
+    useAuthGuard();
     // waiting state for templates user has joined
     const [waitingIds, setWaitingIds] = useState<Set<number>>(new Set());
     const [joiningIds, setJoiningIds] = useState<Set<number>>(new Set());
@@ -147,7 +150,7 @@ function Roomtemplates() {
     return (
         <div className="p-4 space-y-4">
             <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold">Room Templates</h2>
+                <h2 className="text-xl font-semibold">Rooms</h2>
                 <div className="flex gap-2">
                     <button onClick={() => refetch()} className="text-sm px-3 py-1 border rounded-md hover:bg-accent">Refresh</button>
                 </div>
@@ -170,14 +173,14 @@ function Roomtemplates() {
                                     onClick={() => handleJoinClick(item)}
                                 >
                                     <CardHeader>
-                                        <CardTitle className="flex items-center justify-between">
+                                        <CardTitle className="flex items-center justify-center">
                                             <span>{item.title || `#${item.id}`}</span>
-                                            <span className="text-xs px-2 py-1 rounded-md border">{item.game_style}</span>
+                                            {/*<span className="text-xs px-2 py-1 rounded-md border">{item.game_style}</span>*/}
                                         </CardTitle>
                                     </CardHeader>
                                     <CardContent className="text-xs space-y-1">
-                                        <div className="flex justify-between"><span>Entry Fee</span><span>{item.entry_fee}</span></div>
-                                        <div className="flex justify-between"><span>Players</span><span>{item.min_players} - {item.max_players}</span></div>
+                                        <div className="flex justify-between"><span>Entry Fee</span><span>{item.entry_fee}$</span></div>
+                                        <div className="flex justify-between"><span>Players</span><span>{item.min_players} - {item.max_players}👤</span></div>
                                         {isWaiting && (
                                             <div className="pt-2 space-y-2">
                                                 <div className="text-yellow-600 font-semibold flex items-center gap-1 text-[10px]">Waiting in queue...</div>
@@ -242,7 +245,7 @@ function Roomtemplates() {
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter>
-                        <Button variant="outline" onClick={() => setJoinTarget(null)}>Cancel</Button>
+                        {/*<Button variant="outline" onClick={() => setJoinTarget(null)}>Cancel</Button>*/}
                         <Button onClick={confirmJoin} disabled={joinTarget ? joiningIds.has(joinTarget.id) : false}>Confirm</Button>
                     </DialogFooter>
                 </DialogContent>

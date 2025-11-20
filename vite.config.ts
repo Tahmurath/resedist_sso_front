@@ -20,7 +20,7 @@ export default defineConfig(({ mode }) => {
       },
     },
     build: {
-      //outDir: "D:/gintut/assets",
+      outDir: "D:/gintut/assets",
       rollupOptions: {
         output: {
           entryFileNames: currentMode === 'development'
