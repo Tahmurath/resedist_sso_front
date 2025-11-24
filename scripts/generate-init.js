@@ -3,46 +3,80 @@ import path from "path";
 import crypto from "crypto";
 import dotenv from "dotenv";
 
+dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
-// const crypto = require('crypto');
-
-function generateSimulatedInitData(botToken, userData) {
-    const params = {
-        query_id: 'some_query_id', // Simulate a query ID
-        user: JSON.stringify(userData), // User object as JSON string
-        auth_date: Math.floor(Date.now() / 1000), // Current timestamp
-        // Add other relevant parameters as needed for your simulation
-    };
-
-    const sortedKeys = Object.keys(params).sort();
-    const dataCheckString = sortedKeys
-        .map(key => `${key}=${params[key]}`)
-        .join('\n');
-
-    const secretKey = crypto.createHmac('sha256', 'WebAppData')
-        .update(botToken)
-        .digest();
-
-    const hash = crypto.createHmac('sha256', secretKey)
-        .update(dataCheckString)
-        .digest('hex');
-
-    // Combine all parameters, including the calculated hash, into a URL-encoded string
-    const initDataArray = sortedKeys.map(key => `${key}=${encodeURIComponent(params[key])}`);
-    initDataArray.push(`hash=${hash}`);
-
-    return initDataArray.join('&');
+const BOT_TOKEN = process.env.BOT_TOKEN;
+if (!BOT_TOKEN) {
+    console.error("Please set BOT_TOKEN in .env.local");
+    process.exit(1);
 }
 
-// Example usage:
-const myBotToken = '8275723706:AAGbwqB6Bq0lj-0fKulIzDdHVYEz_L3sRCs'; // Replace with your actual bot token
-const simulatedUser = {
-    id: 123456789,
-    first_name: 'John',
-    last_name: 'Doe',
-    username: 'johndoe',
-    language_code: 'en'
+// Example user payload
+const user = {
+    id: 100031556,
+    first_name: "Hooman",
+    last_name: "",
+    username: "tahmooresi",
+    language_code: "en",
+    allows_write_to_pm: true,
 };
 
-const simulatedInitData = generateSimulatedInitData(myBotToken, simulatedUser);
-console.log(simulatedInitData);
+const query_id = "AAFEXPYFAAAAAERc9gVH0-Oz";
+const auth_date = Math.floor(Date.now() / 1000);
+
+// 1) نسخه‌ی raw برای محاسبه hash
+const userRawString = JSON.stringify(user);
+
+// 2) نسخه‌ی encoded برای initData
+const userEncoded = encodeURIComponent(userRawString);
+
+// 3) data_check_string بدون encode — مرتب شده الفبایی
+const dataCheckString =
+    `auth_date=${auth_date}
+query_id=${query_id}
+user=${userRawString}`;
+
+// 4) محاسبه hash
+const secret = crypto.createHmac("sha256", "WebAppData").update(BOT_TOKEN).digest();
+const hash = crypto
+    .createHmac("sha256", secret)
+    .update(dataCheckString)
+    .digest("hex");
+
+// 5) ساخت initData واقعی
+const initData = `query_id=${query_id}&user=${userEncoded}&auth_date=${auth_date}&hash=${hash}`;
+
+// 6) نسخه unsafe
+const initDataUnsafe = {
+    query_id,
+    auth_date: String(auth_date),
+    user,
+    hash
+};
+
+// 7) نوشتن فایل mock
+const outPath = path.resolve(process.cwd(), "src/lib/mockTelegram.ts");
+
+const content = `/* AUTO-GENERATED - dev only */
+declare global {
+  interface Window { Telegram?: any; }
+}
+
+if (!window.Telegram) window.Telegram = {};
+
+window.Telegram.WebApp = {
+  initData: "${initData}",
+  initDataUnsafe: ${JSON.stringify(initDataUnsafe, null, 2)},
+  ready: () => console.log("[mock] Telegram WebApp ready"),
+  expand: () => console.log("[mock] expand()"),
+  close: () => console.log("[mock] close()"),
+};
+
+export default window.Telegram;
+`;
+
+fs.mkdirSync(path.dirname(outPath), { recursive: true });
+fs.writeFileSync(outPath, content, "utf8");
+
+console.log("Wrote mock telegram to", outPath);
+console.log("initData:", initData);
