@@ -45,7 +45,6 @@ function Roomtemplates() {
     // Dialog targets
     const [joinTarget, setJoinTarget] = useState<RoomTemplate | null>(null);
     const [cancelTarget, setCancelTarget] = useState<RoomTemplate | null>(null);
-    const [selectedCardCount, setSelectedCardCount] = useState<number | null>(null);
 
     const {
         data,
@@ -128,14 +127,12 @@ function Roomtemplates() {
     const handleJoinClick = (item: RoomTemplate) => {
         if (waitingIds.has(item.id) || joiningIds.has(item.id)) return;
         setJoinTarget(item);
-        setSelectedCardCount(null);
     };
     const confirmJoin = (cardCount: number) => {
         if (!joinTarget) return;
         setJoiningIds(prev => new Set(prev).add(joinTarget.id));
         joinMutation.mutate({ id: joinTarget.id, cardCount });
         setJoinTarget(null);
-        setSelectedCardCount(null);
     };
     const handleCancelClick = (item: RoomTemplate) => {
         if (!waitingIds.has(item.id) || cancellingIds.has(item.id)) return;
@@ -267,7 +264,7 @@ function Roomtemplates() {
             )}
 
             {/* Join Confirmation Dialog */}
-            <Dialog open={!!joinTarget} onOpenChange={(o) => { if (!o) { setJoinTarget(null); setSelectedCardCount(null); } }}>
+            <Dialog open={!!joinTarget} onOpenChange={(o) => { if (!o) { setJoinTarget(null); } }}>
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle>انتخاب تعداد کارت</DialogTitle>
@@ -281,7 +278,6 @@ function Roomtemplates() {
                                 {Array.from({ length: joinTarget.max_cards - joinTarget.min_cards + 1 }, (_, i) => joinTarget.min_cards + i).map((count) => (
                                     <Button
                                         key={count}
-                                        //variant={selectedCardCount === count ? "default" : "outline"}
                                         onClick={() => confirmJoin(count)}
                                         disabled={joiningIds.has(joinTarget.id)}
                                     >
