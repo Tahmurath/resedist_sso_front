@@ -1,6 +1,6 @@
 import { useInfiniteQuery, useMutation } from "@tanstack/react-query";
 import { axiosInstance } from "@/axios";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {Card, CardContent, CardFooter, CardHeader, CardTitle} from "@/components/ui/card";
 import { useEffect, useRef, useCallback, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,8 @@ interface RoomTemplate {
     entry_fee: number;
     min_players: number;
     max_players: number;
+    min_cards: number;
+    max_cards: number;
     timeout: number;
     game_style: string;
     is_public: boolean;
@@ -43,6 +45,7 @@ function Roomtemplates() {
     // Dialog targets
     const [joinTarget, setJoinTarget] = useState<RoomTemplate | null>(null);
     const [cancelTarget, setCancelTarget] = useState<RoomTemplate | null>(null);
+    const [selectedCardCount, setSelectedCardCount] = useState<number | null>(null);
 
     const {
         data,
@@ -70,18 +73,16 @@ function Roomtemplates() {
 
     // Mutation: join room template (place user into waiting queue)
     const joinMutation = useMutation({
-        mutationFn: async (id: number) => {
-            // Placeholder endpoint; adjust to real one
-            const res = await axiosInstance.post(`/api/v1/daberton/roomtemplate/${id}/join`);
+        mutationFn: async ({ id, cardCount }: { id: number; cardCount: number }) => {
+            const res = await axiosInstance.post(`/api/v1/daberton/roomtemplate/${id}/join`, { card_count: cardCount });
             return res.data;
         },
-        onSuccess: (_data, id) => {
-            setJoiningIds(prev => { const n = new Set(prev); n.delete(id); return n; });
-            setWaitingIds(prev => { const n = new Set(prev); n.add(id); return n; });
+        onSuccess: (_data, variables) => {
+            setJoiningIds(prev => { const n = new Set(prev); n.delete(variables.id); return n; });
+            setWaitingIds(prev => { const n = new Set(prev); n.add(variables.id); return n; });
         },
-        onError: (_err, id) => {
-            setJoiningIds(prev => { const n = new Set(prev); n.delete(id); return n; });
-            // Optionally show toast via sonner
+        onError: (_err, variables) => {
+            setJoiningIds(prev => { const n = new Set(prev); n.delete(variables.id); return n; });
         }
     });
 
@@ -127,13 +128,14 @@ function Roomtemplates() {
     const handleJoinClick = (item: RoomTemplate) => {
         if (waitingIds.has(item.id) || joiningIds.has(item.id)) return;
         setJoinTarget(item);
+        setSelectedCardCount(null);
     };
-    const confirmJoin = () => {
+    const confirmJoin = (cardCount: number) => {
         if (!joinTarget) return;
-        const item = joinTarget;
-        setJoiningIds(prev => new Set(prev).add(item.id));
-        joinMutation.mutate(item.id);
+        setJoiningIds(prev => new Set(prev).add(joinTarget.id));
+        joinMutation.mutate({ id: joinTarget.id, cardCount });
         setJoinTarget(null);
+        setSelectedCardCount(null);
     };
     const handleCancelClick = (item: RoomTemplate) => {
         if (!waitingIds.has(item.id) || cancellingIds.has(item.id)) return;
@@ -170,7 +172,6 @@ function Roomtemplates() {
                                 <Card
                                     key={item.id}
                                     className={`min-h-0 min-w-0 relative transition border ${isWaiting ? 'border-yellow-500' : ''} ${isJoining ? 'opacity-60' : ''}`}
-                                    onClick={() => handleJoinClick(item)}
                                 >
                                     <CardHeader>
                                         <CardTitle className="flex items-center justify-center">
@@ -179,16 +180,27 @@ function Roomtemplates() {
                                         </CardTitle>
                                     </CardHeader>
                                     <CardContent className="text-xs space-y-1">
-                                        <div className="flex justify-between"><span>Entry Fee</span><span>{item.entry_fee}$</span></div>
-                                        <div className="flex justify-between"><span>Players</span><span>{item.min_players} - {item.max_players}👤</span></div>
+                                        <div className="flex justify-between">
+                                            <span>Entry Fee</span><span>{item.entry_fee}$</span></div>
+                                        <div className="flex justify-between">
+                                            <span>Players</span><span>{item.min_players} - {item.max_players} 👤</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span>Cards</span><span>{item.min_cards} - {item.max_cards} 🏁</span></div>
                                         {isWaiting && (
                                             <div className="pt-2 space-y-2">
-                                                <div className="text-yellow-600 font-semibold flex items-center gap-1 text-[10px]">Waiting in queue...</div>
+                                                <div
+                                                    className="text-yellow-600 font-semibold flex items-center gap-1 text-[10px]">Waiting
+                                                    in queue...
+                                                </div>
                                                 <Button
                                                     variant="outline"
                                                     size="sm"
                                                     className="text-[10px] h-auto py-1 px-2"
-                                                    onClick={(e) => { e.stopPropagation(); handleCancelClick(item); }}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleCancelClick(item);
+                                                    }}
                                                     disabled={isCancelling}
                                                 >
                                                     {isCancelling ? 'Cancelling...' : 'Cancel'}
@@ -198,7 +210,26 @@ function Roomtemplates() {
                                         {isJoining && !isWaiting && (
                                             <div className="pt-2 text-[10px] text-muted-foreground">Joining...</div>
                                         )}
+
+
                                     </CardContent>
+                                    {/*<div className="flex justify-between items-center mt-4">*/}
+                                    {/*    */}
+                                    {/*</div>*/}
+                                    {!isJoining && !isWaiting && (
+                                        <CardFooter className="flex-col gap-2">
+                                            <Button
+                                                disabled={
+                                                    joiningIds.has(item.id) ||
+                                                    waitingIds.has(item.id)
+                                                }
+                                                className="w-full"
+                                                onClick={() => handleJoinClick(item)}>
+                                                Join
+                                            </Button>
+                                        </CardFooter>
+                                    )}
+
                                 </Card>
                             );
                         })}
@@ -236,17 +267,29 @@ function Roomtemplates() {
             )}
 
             {/* Join Confirmation Dialog */}
-            <Dialog open={!!joinTarget} onOpenChange={(o) => { if (!o) setJoinTarget(null); }}>
+            <Dialog open={!!joinTarget} onOpenChange={(o) => { if (!o) { setJoinTarget(null); setSelectedCardCount(null); } }}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Join Room Template</DialogTitle>
+                        <DialogTitle>انتخاب تعداد کارت</DialogTitle>
                         <DialogDescription>
-                            {joinTarget ? `Entry fee ${joinTarget.entry_fee} will be blocked and you will enter the waiting queue for "${joinTarget.title}".` : ''}
+                            {joinTarget ? `تعداد کارت مورد نظر را انتخاب کنید (${joinTarget.min_cards} تا ${joinTarget.max_cards})` : ''}
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter>
-                        {/*<Button variant="outline" onClick={() => setJoinTarget(null)}>Cancel</Button>*/}
-                        <Button onClick={confirmJoin} disabled={joinTarget ? joiningIds.has(joinTarget.id) : false}>Confirm</Button>
+                        {joinTarget && (
+                            <div className="flex gap-2 flex-wrap justify-center w-full">
+                                {Array.from({ length: joinTarget.max_cards - joinTarget.min_cards + 1 }, (_, i) => joinTarget.min_cards + i).map((count) => (
+                                    <Button
+                                        key={count}
+                                        //variant={selectedCardCount === count ? "default" : "outline"}
+                                        onClick={() => confirmJoin(count)}
+                                        disabled={joiningIds.has(joinTarget.id)}
+                                    >
+                                        {count}
+                                    </Button>
+                                ))}
+                            </div>
+                        )}
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
