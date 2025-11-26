@@ -88,7 +88,7 @@ function Roomtemplates() {
     // Mutation: cancel waiting
     const cancelMutation = useMutation({
         mutationFn: async (id: number) => {
-            const res = await axiosInstance.post(`/api/v1/daberton/roomtemplate/${id}/cancel`);
+            const res = await axiosInstance.post(`/api/v1/daberton/roomtemplate/userwaitings/${id}/cancel`);
             return res.data;
         },
         onSuccess: (_data, id) => {
