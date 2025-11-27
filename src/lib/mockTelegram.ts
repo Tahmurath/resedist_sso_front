@@ -6,10 +6,10 @@ declare global {
 if (!window.Telegram) window.Telegram = {};
 
 window.Telegram.WebApp = {
-  initData: "query_id=AAFEXPYFAAAAAERc9gVH0-Oz&user=%7B%22id%22%3A100031556%2C%22first_name%22%3A%22Hooman%22%2C%22last_name%22%3A%22%22%2C%22username%22%3A%22tahmooresi%22%2C%22language_code%22%3A%22en%22%2C%22allows_write_to_pm%22%3Atrue%7D&auth_date=1764071852&hash=10d6a0603451ec1376fe3b2526674c1219b26b85563013bf2a39feafcd022e09",
+  initData: "query_id=AAFEXPYFAAAAAERc9gVH0-Oz&user=%7B%22id%22%3A100031556%2C%22first_name%22%3A%22Hooman%22%2C%22last_name%22%3A%22%22%2C%22username%22%3A%22tahmooresi%22%2C%22language_code%22%3A%22en%22%2C%22allows_write_to_pm%22%3Atrue%7D&auth_date=1764237502&hash=5d0a9dd7546b68ad8b5d9499518235f086deab90faa182fb23f7936cc484bec9",
   initDataUnsafe: {
   "query_id": "AAFEXPYFAAAAAERc9gVH0-Oz",
-  "auth_date": "1764071852",
+  "auth_date": "1764237502",
   "user": {
     "id": 100031556,
     "first_name": "Hooman",
@@ -18,7 +18,7 @@ window.Telegram.WebApp = {
     "language_code": "en",
     "allows_write_to_pm": true
   },
-  "hash": "10d6a0603451ec1376fe3b2526674c1219b26b85563013bf2a39feafcd022e09"
+  "hash": "5d0a9dd7546b68ad8b5d9499518235f086deab90faa182fb23f7936cc484bec9"
 },
   ready: () => console.log("[mock] Telegram WebApp ready"),
   expand: () => console.log("[mock] expand()"),

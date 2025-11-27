@@ -11,6 +11,7 @@ const LayoutnobarnoBottom = lazy(() => import('./layout/LayoutnobarnoBottom.tsx'
 const Home = lazy(() => import('./pages/main/home'));
 const Roomtemplates = lazy(() => import('./pages/miniapp/roomtemplates'));
 const Login = lazy(() => import('./pages/main/login.tsx'));
+const Unauthorized = lazy(() => import('./pages/main/unauthorized.tsx'));
 
 const TmaIndex = lazy(() => import('./pages/miniapp/index.tsx'));
 const TmaHome = lazy(() => import('./pages/miniapp/home.tsx'));
@@ -59,6 +60,14 @@ export const router = createBrowserRouter([
                 element: (
                     <Suspense fallback={<>...</>}>
                         <TmaIndex />
+                    </Suspense>
+                ),
+            },
+            {
+                path: 'unauthorized',
+                element: (
+                    <Suspense fallback={<>...</>}>
+                        <Unauthorized />
                     </Suspense>
                 ),
             },
