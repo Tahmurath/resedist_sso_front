@@ -55,7 +55,8 @@ function Roomtemplates() {
         hasNextPage,
         isFetchingNextPage,
         refetch,
-        status
+        status,
+        isFetching
     } = useInfiniteQuery({
         queryKey: ["/api/v1/daberton/roomtemplate"],
         queryFn: async ({ pageParam = 1 }: { pageParam: number }) => {
@@ -70,33 +71,42 @@ function Roomtemplates() {
         },
     });
 
+    // Add a local state to track join loading per room
+    const [joinLoadingId, setJoinLoadingId] = useState<number | null>(null);
+
     // Mutation: join room template (place user into waiting queue)
     const joinMutation = useMutation({
         mutationFn: async ({ id, cardCount }: { id: number; cardCount: number }) => {
+            setJoinLoadingId(id);
             const res = await axiosInstance.post(`/api/v1/daberton/roomtemplate/${id}/join`, { card_count: cardCount });
             return res.data;
         },
         onSuccess: (_data, variables) => {
             setJoiningIds(prev => { const n = new Set(prev); n.delete(variables.id); return n; });
             setWaitingIds(prev => { const n = new Set(prev); n.add(variables.id); return n; });
+            setJoinLoadingId(null);
         },
         onError: (_err, variables) => {
             setJoiningIds(prev => { const n = new Set(prev); n.delete(variables.id); return n; });
+            setJoinLoadingId(null);
         }
     });
 
     // Mutation: cancel waiting
     const cancelMutation = useMutation({
         mutationFn: async (id: number) => {
+            setJoinLoadingId(id);
             const res = await axiosInstance.post(`/api/v1/daberton/roomtemplate/userwaitings/${id}/cancel`);
             return res.data;
         },
         onSuccess: (_data, id) => {
             setCancellingIds(prev => { const n = new Set(prev); n.delete(id); return n; });
             setWaitingIds(prev => { const n = new Set(prev); n.delete(id); return n; });
+            setJoinLoadingId(null);
         },
         onError: (_err, id) => {
             setCancellingIds(prev => { const n = new Set(prev); n.delete(id); return n; });
+            setJoinLoadingId(null);
         }
     });
 
@@ -147,11 +157,18 @@ function Roomtemplates() {
     };
 
     return (
-        <div className="p-4 space-y-4">
-            <div className="flex items-center justify-between">
+        // اضافه کردن فاصله از بالا برای جلوگیری از تداخل با دکمه close تلگرام
+        <div className="p-4 space-y-4 pt-10">
+            <div className="flex items-center justify-between sticky top-0 z-20 backdrop-blur border-b border-gray-200 pb-2 mb-4 p-4 rounded-xl shadow-sm">
                 <h2 className="text-xl font-semibold">Rooms</h2>
                 <div className="flex gap-2">
-                    <button onClick={() => refetch()} className="text-sm px-3 py-1 border rounded-md hover:bg-accent">Refresh</button>
+                    {(isFetching || joinLoadingId !== null) ? (
+                        <span className="w-6 h-6 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin inline-block" aria-label="Loading" />
+                    ) : (
+                        <Button
+                            variant={"secondary"}
+                            onClick={() => refetch()} className="text-sm px-3 py-1 border rounded-md hover:bg-accent">Refresh</Button>
+                    )}
                 </div>
             </div>
 
