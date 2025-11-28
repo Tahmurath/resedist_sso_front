@@ -5,6 +5,8 @@ import { useEffect, useRef, useCallback, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
+// --- New: Import axios for waitings count fetch ---
+//import axios from "axios";
 
 
 interface RoomTemplate {
@@ -74,6 +76,27 @@ function Roomtemplates() {
     // Add a local state to track join loading per room
     const [joinLoadingId, setJoinLoadingId] = useState<number | null>(null);
 
+    // --- New: State for waitings count ---
+    const [waitingsCount, setWaitingsCount] = useState<Record<number, number>>({});
+    const [waitingsLoading, setWaitingsLoading] = useState(false);
+
+    // --- New: Fetch waitings count ---
+    const fetchWaitingsCount = useCallback(async () => {
+        setWaitingsLoading(true);
+        try {
+            const res = await axiosInstance.get("/api/v1/daberton/roomtemplate/waitings/counts");
+            setWaitingsCount(res.data.data || {});
+        } catch (e) {
+            setWaitingsCount({});
+        } finally {
+            setWaitingsLoading(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchWaitingsCount();
+    }, [fetchWaitingsCount]);
+
     // Mutation: join room template (place user into waiting queue)
     const joinMutation = useMutation({
         mutationFn: async ({ id, cardCount }: { id: number; cardCount: number }) => {
@@ -85,6 +108,7 @@ function Roomtemplates() {
             setJoiningIds(prev => { const n = new Set(prev); n.delete(variables.id); return n; });
             setWaitingIds(prev => { const n = new Set(prev); n.add(variables.id); return n; });
             setJoinLoadingId(null);
+            fetchWaitingsCount(); // <-- Refetch waitings count
         },
         onError: (_err, variables) => {
             setJoiningIds(prev => { const n = new Set(prev); n.delete(variables.id); return n; });
@@ -162,12 +186,12 @@ function Roomtemplates() {
             <div className="flex items-center justify-between sticky top-0 z-20 backdrop-blur border-b border-gray-200 pb-2 mb-4 p-4 rounded-xl shadow-sm">
                 <h2 className="text-xl font-semibold">Rooms</h2>
                 <div className="flex gap-2">
-                    {(isFetching || joinLoadingId !== null) ? (
+                    {(isFetching || joinLoadingId !== null || waitingsLoading) ? (
                         <span className="w-6 h-6 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin inline-block" aria-label="Loading" />
                     ) : (
                         <Button
                             variant={"secondary"}
-                            onClick={() => refetch()} className="text-sm px-3 py-1 border rounded-md hover:bg-accent">Refresh</Button>
+                            onClick={() => { refetch(); fetchWaitingsCount(); }} className="text-sm px-3 py-1 border rounded-md hover:bg-accent">Refresh</Button>
                     )}
                 </div>
             </div>
@@ -182,6 +206,7 @@ function Roomtemplates() {
                             const isWaiting = waitingIds.has(item.id);
                             const isJoining = joiningIds.has(item.id);
                             const isCancelling = cancellingIds.has(item.id);
+                            const waitingCount = waitingsCount[item.id] || 0;
                             return (
                                 <Card
                                     key={item.id}
@@ -190,7 +215,6 @@ function Roomtemplates() {
                                     <CardHeader>
                                         <CardTitle className="flex items-center justify-center">
                                             <span>{item.title || `#${item.id}`}</span>
-                                            {/*<span className="text-xs px-2 py-1 rounded-md border">{item.game_style}</span>*/}
                                         </CardTitle>
                                     </CardHeader>
                                     <CardContent className="text-xs space-y-1">
@@ -201,6 +225,9 @@ function Roomtemplates() {
                                         </div>
                                         <div className="flex justify-between">
                                             <span>Cards</span><span>{item.min_cards} - {item.max_cards} 🏁</span></div>
+                                        <div className="flex justify-between">
+                                            <span>Waiting</span><span>{waitingCount}</span>
+                                        </div>
                                         {isWaiting && (
                                             <div className="pt-2 space-y-2">
                                                 <div

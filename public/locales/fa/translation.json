@@ -18,7 +18,8 @@
     "light": "روشن",
     "dark": "تاریک",
     "system": "سیستم",
-    "language": "زبان"
+    "language": "زبان",
+    "activeRooms": "اتاق‌های فعال"
   },
   "login": {
     "apple": "ورود با اپل",

@@ -18,7 +18,8 @@
     "light": "Hell",
     "dark": "Dunkel",
     "system": "System",
-    "language": "Sprache"
+    "language": "Sprache",
+    "activeRooms": "Aktive Räume"
   },
   "login": {
     "apple": "Mit Apple anmelden",

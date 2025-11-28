@@ -19,8 +19,8 @@
     "dark": "Dark",
     "system": "System",
     "mode": "Mode",
-    "language": "Language"
-
+    "language": "Language",
+    "activeRooms": "Active Rooms"
   },
   "login": {
     "apple": "Sign in with Apple",
