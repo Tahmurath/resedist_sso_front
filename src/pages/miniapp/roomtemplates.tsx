@@ -127,6 +127,7 @@ function Roomtemplates() {
             setCancellingIds(prev => { const n = new Set(prev); n.delete(id); return n; });
             setWaitingIds(prev => { const n = new Set(prev); n.delete(id); return n; });
             setJoinLoadingId(null);
+            fetchWaitingsCount(); // <-- Refetch waitings count
         },
         onError: (_err, id) => {
             setCancellingIds(prev => { const n = new Set(prev); n.delete(id); return n; });

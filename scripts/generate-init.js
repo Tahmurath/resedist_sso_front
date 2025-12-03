@@ -13,10 +13,10 @@ if (!BOT_TOKEN) {
 
 // Example user payload
 const user = {
-    id: 100031556,
+    id: 100031557,
     first_name: "Hooman",
     last_name: "",
-    username: "tahmooresi",
+    username: "tahmooresi2",
     language_code: "en",
     allows_write_to_pm: true,
 };
