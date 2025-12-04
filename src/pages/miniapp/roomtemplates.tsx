@@ -48,6 +48,26 @@ function Roomtemplates() {
     const [joinTarget, setJoinTarget] = useState<RoomTemplate | null>(null);
     const [cancelTarget, setCancelTarget] = useState<RoomTemplate | null>(null);
 
+    // Add a local state to track join loading per room
+    const [joinLoadingId, setJoinLoadingId] = useState<number | null>(null);
+
+    // State for waitings count
+    const [waitingsCount, setWaitingsCount] = useState<Record<number, number>>({});
+    const [waitingsLoading, setWaitingsLoading] = useState(false);
+
+    // Fetch waitings count
+    const fetchWaitingsCount = useCallback(async () => {
+        setWaitingsLoading(true);
+        try {
+            const res = await axiosInstance.get("/api/v1/daberton/roomtemplate/waitings/counts");
+            setWaitingsCount(res.data.data || {});
+        } catch {
+            setWaitingsCount({});
+        } finally {
+            setWaitingsLoading(false);
+        }
+    }, []);
+
     const {
         data,
         isLoading,
@@ -58,7 +78,8 @@ function Roomtemplates() {
         isFetchingNextPage,
         refetch,
         status,
-        isFetching
+        isFetching,
+        dataUpdatedAt,
     } = useInfiniteQuery({
         queryKey: ["/api/v1/daberton/roomtemplate"],
         queryFn: async ({ pageParam = 1 }: { pageParam: number }) => {
@@ -71,30 +92,26 @@ function Roomtemplates() {
             const total = lastPage.pagination.total_pages;
             return current < total ? current + 1 : undefined;
         },
+        // auto-refetch templates list every 30 seconds
+        refetchInterval: 30000,
+        refetchIntervalInBackground: true,
+        refetchOnWindowFocus: true,
+        refetchOnReconnect: true,
     });
 
-    // Add a local state to track join loading per room
-    const [joinLoadingId, setJoinLoadingId] = useState<number | null>(null);
-
-    // --- New: State for waitings count ---
-    const [waitingsCount, setWaitingsCount] = useState<Record<number, number>>({});
-    const [waitingsLoading, setWaitingsLoading] = useState(false);
-
-    // --- New: Fetch waitings count ---
-    const fetchWaitingsCount = useCallback(async () => {
-        setWaitingsLoading(true);
-        try {
-            const res = await axiosInstance.get("/api/v1/daberton/roomtemplate/waitings/counts");
-            setWaitingsCount(res.data.data || {});
-        } catch (e) {
-            setWaitingsCount({});
-        } finally {
-            setWaitingsLoading(false);
+    // keep waitings count in sync whenever templates data successfully updates (e.g. tab focus refetch)
+    useEffect(() => {
+        if (status === "success") {
+            fetchWaitingsCount();
         }
-    }, []);
+    }, [status, dataUpdatedAt, fetchWaitingsCount]);
 
     useEffect(() => {
         fetchWaitingsCount();
+        const intervalId = setInterval(() => {
+            fetchWaitingsCount();
+        }, 30000); // auto-refetch waitings count every 30 seconds
+        return () => clearInterval(intervalId);
     }, [fetchWaitingsCount]);
 
     // Mutation: join room template (place user into waiting queue)
