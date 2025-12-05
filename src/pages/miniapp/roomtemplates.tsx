@@ -5,8 +5,7 @@ import { useEffect, useRef, useCallback, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
-// --- New: Import axios for waitings count fetch ---
-//import axios from "axios";
+import {BadgeDollarSign, PanelBottomDashed, SquareEqual, Users} from "lucide-react";
 
 
 interface RoomTemplate {
@@ -68,6 +67,17 @@ function Roomtemplates() {
         }
     }, []);
 
+    // Fetch user waitings
+    const fetchUserWaitings = useCallback(async () => {
+        try {
+            const res = await axiosInstance.get("/api/v1/daberton/roomtemplate/userwaitings");
+            const waitings: { TemplateID: number; NumCards: number }[] = res.data.data || [];
+            setWaitingIds(new Set(waitings.map((w) => w.TemplateID)));
+        } catch {
+            setWaitingIds(new Set());
+        }
+    }, []);
+
     const {
         data,
         isLoading,
@@ -114,6 +124,11 @@ function Roomtemplates() {
         return () => clearInterval(intervalId);
     }, [fetchWaitingsCount]);
 
+    // Fetch user waitings on mount and when data updates
+    useEffect(() => {
+        fetchUserWaitings();
+    }, [dataUpdatedAt, fetchUserWaitings]);
+
     // Mutation: join room template (place user into waiting queue)
     const joinMutation = useMutation({
         mutationFn: async ({ id, cardCount }: { id: number; cardCount: number }) => {
@@ -123,9 +138,10 @@ function Roomtemplates() {
         },
         onSuccess: (_data, variables) => {
             setJoiningIds(prev => { const n = new Set(prev); n.delete(variables.id); return n; });
-            setWaitingIds(prev => { const n = new Set(prev); n.add(variables.id); return n; });
+            // setWaitingIds(prev => { const n = new Set(prev); n.add(variables.id); return n; }); // <-- remove this
             setJoinLoadingId(null);
             fetchWaitingsCount(); // <-- Refetch waitings count
+            fetchUserWaitings(); // <-- Refetch user waitings
         },
         onError: (_err, variables) => {
             setJoiningIds(prev => { const n = new Set(prev); n.delete(variables.id); return n; });
@@ -142,9 +158,10 @@ function Roomtemplates() {
         },
         onSuccess: (_data, id) => {
             setCancellingIds(prev => { const n = new Set(prev); n.delete(id); return n; });
-            setWaitingIds(prev => { const n = new Set(prev); n.delete(id); return n; });
+            // setWaitingIds(prev => { const n = new Set(prev); n.delete(id); return n; }); // <-- remove this
             setJoinLoadingId(null);
             fetchWaitingsCount(); // <-- Refetch waitings count
+            fetchUserWaitings(); // <-- Refetch user waitings
         },
         onError: (_err, id) => {
             setCancellingIds(prev => { const n = new Set(prev); n.delete(id); return n; });
@@ -200,16 +217,16 @@ function Roomtemplates() {
 
     return (
         // اضافه کردن فاصله از بالا برای جلوگیری از تداخل با دکمه close تلگرام
-        <div className="p-4 space-y-4 pt-10">
-            <div className="flex items-center justify-between sticky top-0 z-20 backdrop-blur border-b border-gray-200 pb-2 mb-4 p-4 rounded-xl shadow-sm">
+        <div className="mt-10">
+            <div className="flex items-center justify-between sticky top-3 z-20 backdrop-blur border-b border-gray-200 pb-2 mb-4 p-4 rounded-xl shadow-sm min-h-20">
                 <h2 className="text-xl font-semibold">Rooms</h2>
                 <div className="flex gap-2">
                     {(isFetching || joinLoadingId !== null || waitingsLoading) ? (
-                        <span className="w-6 h-6 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin inline-block" aria-label="Loading" />
+                        <span className="w-6 h-6 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin inline-block " aria-label="Loading" />
                     ) : (
                         <Button
                             variant={"secondary"}
-                            onClick={() => { refetch(); fetchWaitingsCount(); }} className="text-sm px-3 py-1 border rounded-md hover:bg-accent">Refresh</Button>
+                            onClick={() => { refetch(); fetchWaitingsCount();  }} className="text-sm px-3 py-1 border rounded-md hover:bg-accent">Refresh</Button>
                     )}
                 </div>
             </div>
@@ -228,21 +245,40 @@ function Roomtemplates() {
                             return (
                                 <Card
                                     key={item.id}
-                                    className={`min-h-0 min-w-0 relative transition border ${isWaiting ? 'border-yellow-500' : ''} ${isJoining ? 'opacity-60' : ''}`}
+                                    className={`min-h-55  min-w-0 relative transition border ${isWaiting ? 'border-yellow-500' : ''} ${isJoining ? 'opacity-60' : ''}`}
                                 >
                                     <CardHeader>
                                         <CardTitle className="flex items-center justify-center">
                                             <span>{item.title || `#${item.id}`}</span>
                                         </CardTitle>
                                     </CardHeader>
-                                    <CardContent className="text-xs space-y-1">
+                                    <CardContent className="text-sm space-y-1">
                                         <div className="flex justify-between">
-                                            <span>Entry Fee</span><span>{item.entry_fee}$</span></div>
-                                        <div className="flex justify-between">
-                                            <span>Players</span><span>{item.min_players} - {item.max_players} 👤</span>
+                                            <span>Entry Fee</span>
+                                            <span className="flex items-center gap-1">
+                                                {item.entry_fee}
+                                                <BadgeDollarSign className="w-4 h-4 inline-block align-middle"/>
+                                            </span>
                                         </div>
+
+                                        <div className="flex justify-between ">
+                                            <span>Players</span>
+                                            <span className="flex items-center gap-1">
+                                                {item.min_players} - {item.max_players}
+                                                <Users className="w-4 h-4 inline-block align-middle"/>
+                                            </span>
+                                        </div>
+
+
                                         <div className="flex justify-between">
-                                            <span>Cards</span><span>{item.min_cards} - {item.max_cards} 🏁</span></div>
+                                            <span>Cards</span>
+                                            <span className="flex items-center gap-1">
+                                                {item.min_cards} - {item.max_cards}
+                                                <SquareEqual className="w-4 h-4 inline-block align-middle" />
+
+                                            </span>
+                                        </div>
+
                                         <div className="flex justify-between">
                                             <span>Waiting</span><span>{waitingCount}</span>
                                         </div>
